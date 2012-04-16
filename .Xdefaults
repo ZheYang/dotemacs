@@ -1,0 +1,8 @@
+Emacs.Fontset-0:-microsoft-YaHei Monaco-normal-normal-normal-*-14-*-*-*-*-*-fontset-monaco,\
+		han:-unknown-WenQuanYi Micro Hei-normal-normal-normal-*-16-*-*-*-*-*-*-*,\
+		kana:-unknown-WenQuanYi Micro Hei-normal-normal-normal-*-16-*-*-*-*-*-*-*,\
+		symbol:-unknown-WenQuanYi Micro Hei-normal-normal-normal-*-16-*-*-*-*-*-*-*,\
+		cjk-misc:-unknown-WenQuanYi Micro Hei-normal-normal-normal-*-16-*-*-*-*-*-*-*,\
+		bopomofo:-unknown-WenQuanYi Micro Hei-normal-normal-normal-*-16-*-*-*-*-*-*-*
+Emacs.font:fontset-monaco
+Emacs.geometry:110x32+0+0

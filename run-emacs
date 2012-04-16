@@ -1,0 +1,9 @@
+#!/bin/sh
+xrdb /home/user/.Xdefaults
+
+if [[ "$1" = "--daemon" ]]
+then
+	run-emacs --daemon
+else
+	emacsclient -a '' "$@" -c
+fi
