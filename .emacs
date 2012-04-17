@@ -21,13 +21,13 @@
 (tool-bar-mode nil);;不显示工具栏
 (setq visible-bell t);;关闭提示音
 (setq initial-scratch-message nil);; *stratch* 缓冲区默认为空
-(iswitchb-mode t);;使用C-x b时显示所有buffer
 (setq frame-title-format "%b@Emacs");;设置title为 文件名@Emacs
 (mouse-avoidance-mode 'animate);;光标靠近鼠标时，鼠标自动让开
 (fset 'yes-or-no-p 'y-or-n-p);;以y/n代替yes/no
 (setq x-select-enable-clipboard t);;启用 复制内容到系统剪切板
 (setq default-major-mode 'text-mode)
 ;;(transient-mark-mode t)
+(iswitchb-mode t);;使用C-x b时显示所有buffer
 (global-set-key (kbd "C-x C-b") 'ibuffer);;使用ibuffer管理缓冲区
 (global-set-key (kbd "S-SPC") 'set-mark-command) 
 
@@ -36,8 +36,8 @@
 (cua-mode t)
 
 ;;页面平滑滚动， scroll-margin 3 靠近屏幕边沿3行时开始滚动，可以很好的看到上下文。  
-;; (setq scroll-margin 3  
-;;       scroll-conservatively 10000) 
+(setq scroll-margin 3  
+      scroll-conservatively 10000) 
 
 ;;时间显示设置
 (display-time-mode 1)
@@ -49,10 +49,6 @@
 (setq display-time-use-mail-icon t)
 ;;时间的变化频率，单位多少来着？
 (setq display-time-interval 10)
-;;	19,	显示时间，格式如下
-(display-time-mode 1)
-(setq display-time-24hr-format t)
-(setq display-time-day-and-date t) 
 
 ;;----------------------------------------------------------
 ;; 日历设置
@@ -81,6 +77,7 @@
 	     "~/.emacs.d/site-lisp/yasnippet")
 (require 'yasnippet)
 (yas/global-mode 1)
+(global-set-key [(control tab)] 'yas/expand)
 
 ;;----------------------------------------------------------
 ;shell,gdb退出后，自动关闭该buffer
@@ -106,11 +103,8 @@
 (add-to-list 'load-path "~/.emacs.d/site-lisp/color-theme-6.6.0/color-theme-solarized")
 (require 'color-theme)
 (color-theme-initialize)
-(require 'color-theme-solarized)
-;;(color-theme-solarized-light)
+;; (require 'color-theme-solarized)
 (color-theme-tangotango)
-;;(color-theme-gruber-darker)
-;;(color-theme-tomorrow-night-eighties)
 
 
 
@@ -123,12 +117,23 @@
 ;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
 ;; Select one of the following
 (semantic-load-enable-code-helpers)
-;; (semantic-load-enable-guady-code-helpers)
+(semantic-load-enable-semantic-debugging-helpers)
 
-;;(ede-minor-mode t) 
-;;(semantic-load-enable-minimum-features) 
-;;(local-set-key (kbd "M-/") 'semantic-complete-analyze-inline) 
-
+;;代码跳转
+(global-set-key [f12] 'semantic-ia-fast-jump)
+;;调回原处
+(global-set-key [S-f12]
+                (lambda ()
+                  (interactive)
+                  (if (ring-empty-p (oref semantic-mru-bookmark-ring ring))
+                      (error "Semantic Bookmark ring is currently empty"))
+                  (let* ((ring (oref semantic-mru-bookmark-ring ring))
+                         (alist (semantic-mrub-ring-to-assoc-list ring))
+                         (first (cdr (car alist))))
+                    (if (semantic-equivalent-tag-p (oref first tag)
+                                                   (semantic-current-tag))
+                        (setq first (cdr (car (cdr alist)))))
+                    (semantic-mrub-switch-tags first))))
 
 ;;配置Sementic的检索范围
 (setq semanticdb-project-roots 
@@ -143,7 +148,6 @@
     (indent-for-tab-command))
   )
 
-(global-set-key [(control tab)] 'my-indent-or-complete)
 
 (autoload 'senator-try-expand-semantic "senator")
 
