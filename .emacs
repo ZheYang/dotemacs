@@ -25,7 +25,8 @@
 (mouse-avoidance-mode 'animate);;光标靠近鼠标时，鼠标自动让开
 (fset 'yes-or-no-p 'y-or-n-p);;以y/n代替yes/no
 (setq x-select-enable-clipboard t);;启用 复制内容到系统剪切板
-(setq default-major-mode 'text-mode)
+(setq kill-ring-max 200)
+;;(setq default-major-mode 'text-mode)
 ;;(transient-mark-mode t)
 (iswitchb-mode t);;使用C-x b时显示所有buffer
 (global-set-key (kbd "C-x C-b") 'ibuffer);;使用ibuffer管理缓冲区
@@ -47,7 +48,7 @@
 (setq display-time-day-and-date t)
 ;;时间栏旁边启用邮件设置
 (setq display-time-use-mail-icon t)
-;;时间的变化频率，单位多少来着？
+;;时间的变化频率
 (setq display-time-interval 10)
 
 ;;----------------------------------------------------------
@@ -100,7 +101,7 @@
 ;;color theme
 ;;----------------------------------------------------------
 (add-to-list 'load-path "~/.emacs.d/site-lisp/color-theme-6.6.0")
-(add-to-list 'load-path "~/.emacs.d/site-lisp/color-theme-6.6.0/color-theme-solarized")
+;;(add-to-list 'load-path "~/.emacs.d/site-lisp/color-theme-6.6.0/color-theme-solarized")
 (require 'color-theme)
 (color-theme-initialize)
 ;; (require 'color-theme-solarized)
