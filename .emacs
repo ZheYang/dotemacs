@@ -67,8 +67,6 @@
 (load-file "~/.emacs.d/site-lisp/unicad.el")
 
 
-
-
 ;;----------------------------------------------------------
 ;;MarkDown Mode
 ;;----------------------------------------------------------
@@ -76,7 +74,13 @@
 (add-to-list 'auto-mode-alist '("\\.\\(text\\|markdown\\|md\\|mdown\\)$" . markdown-mode))
 ;;(setq auto-mode-alist (cons '("\\.\\(text\\|markdown\\|md\\)$" . markdown-mode) auto-mode-alist))
 
-
+;;----------------------------------------------------------
+;;Yasnippet
+;;----------------------------------------------------------
+(add-to-list 'load-path
+	     "~/.emacs.d/site-lisp/yasnippet")
+(require 'yasnippet)
+(yas/global-mode 1)
 
 ;;----------------------------------------------------------
 ;shell,gdb退出后，自动关闭该buffer
@@ -161,10 +165,10 @@
       )
 
 
-;;--------------------------------------------------------------------------------
+;;----------------------------------------------------------
 ;; 输入 inc , 可以自动提示输入文件名称,可以自动补全.
 ;; Provided by yangyingchao@gmail.com
-;;--------------------------------------------------------------------------------
+;;----------------------------------------------------------
 (mapc
  (lambda (mode)
    (define-abbrev-table mode '(
@@ -325,6 +329,51 @@
 ;; ;;(setq ecb-auto-activate t
 ;; ;;      ecb-tip-of-the-day nil)
 
+
+;;----------------------------------------------------------
+;;编译当前文件
+;;----------------------------------------------------------
+
+(global-set-key (kbd "<f9>") 'smart-compile)
+(defun smart-compile()
+  "比较智能的C/C++编译命令
+如果当前目录有makefile则用make -k编译，否则，如果是
+处于c-mode，就用gcc -Wall编译，如果是c++-mode就用
+g++ -Wall编译"
+  (interactive)
+  ;; 查找 Makefile
+  (let ((candidate-make-file-name '("makefile" "Makefile" "GNUmakefile"))
+        (command nil))
+    (if (not (null
+              (find t candidate-make-file-name :key
+                    '(lambda (f) (file-readable-p f)))))
+        (setq command "make -k ")
+        ;; 没有找到 Makefile ，查看当前 mode 是否是已知的可编译的模式
+        (if (null (buffer-file-name (current-buffer)))
+            (message "Buffer not attached to a file, won't compile!")
+            (if (eq major-mode 'c-mode)
+                (setq command
+                      (concat "gcc -Wall -o "
+                              (file-name-sans-extension
+                               (file-name-nondirectory buffer-file-name))
+                              " "
+                              (file-name-nondirectory buffer-file-name)
+                              " -g -lm "))
+              (if (eq major-mode 'c++-mode)
+                  (setq command
+                        (concat "g++ -Wall -o "
+                                (file-name-sans-extension
+                                 (file-name-nondirectory buffer-file-name))
+                                " "
+                                (file-name-nondirectory buffer-file-name)
+                                " -g -lm "))
+                (message "Unknow mode, won't compile!")))))
+    (if (not (null command))
+        (let ((command (read-from-minibuffer "Compile command: " command)))
+          (compile command)))))
+
+
+
 ;;----------------------------------------------------------
 ;;使用ibus输入法
 ;;----------------------------------------------------------
@@ -337,14 +386,7 @@
 ;; Choose your key to toggle input status:
 (global-set-key (kbd "C-\\") 'ibus-toggle)
 
-;;----------------------------------------------------------
-;;编译当前文件
-;;----------------------------------------------------------
 
-(defun compile-file ()
-  (interactive)
-  (compile (format "g++ -g -Wall -o a.out %s" (buffer-file-name))))
-(global-set-key (kbd "<f9>") 'compile-file)
 
 ;;----------------------------------------------------------
 ;; 音乐播放器设置
@@ -381,37 +423,6 @@
 ;; (global-set-key (kbd "C-c e a") 'emms-add-directory-tree)
 ;; (add-to-list 'load-path "/usr/share/emacs/site-lisp") ;;
 
-;;----------------------------------------------------------
-;; 全屏及最大化配置
-;;----------------------------------------------------------
-;; 参考：http://forum.ubuntu.org.cn/viewtopic.php?f=24&t=62416
-;全屏
-(defun my-fullscreen ()
-  (interactive)
-  (x-send-client-message
-   nil 0 nil "_NET_WM_STATE" 32
-   '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
-
-;最大化
-(defun my-maximized-horz ()
-  (interactive)
-  (x-send-client-message
-   nil 0 nil "_NET_WM_STATE" 32
-   '(1 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
-(defun my-maximized-vert ()
-  (interactive)
-  (x-send-client-message
-   nil 0 nil "_NET_WM_STATE" 32
-   '(1 "_NET_WM_STATE_MAXIMIZED_VERT" 0)))
-(defun my-maximized ()
-  (interactive)
-  (x-send-client-message
-   nil 0 nil "_NET_WM_STATE" 32
-   '(1 "_NET_WM_STATE_MAXIMIZED_HORZ" 0))
-  (interactive)
-  (x-send-client-message
-   nil 0 nil "_NET_WM_STATE" 32
-   '(1 "_NET_WM_STATE_MAXIMIZED_VERT" 0)))
 
 ;;----------------------------------------------------------
 ;;Org-mode
@@ -499,6 +510,40 @@
 (setq browse-url-browser-function 'w3m-browse-url)
 ;; (setq browse-url-generic-program (executable-find "chromium" ) browse-url-browser-function 'browse-url-generic)	;;使用外部浏览器
 
+
+
+
+;;----------------------------------------------------------
+;; 全屏及最大化配置
+;;----------------------------------------------------------
+;; 参考：http://forum.ubuntu.org.cn/viewtopic.php?f=24&t=62416
+;全屏
+(defun my-fullscreen ()
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
+
+;最大化
+(defun my-maximized-horz ()
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(1 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)))
+(defun my-maximized-vert ()
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(1 "_NET_WM_STATE_MAXIMIZED_VERT" 0)))
+(defun my-maximized ()
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(1 "_NET_WM_STATE_MAXIMIZED_HORZ" 0))
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(1 "_NET_WM_STATE_MAXIMIZED_VERT" 0)))
 
 
 
